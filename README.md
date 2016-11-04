@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/danielfm/kubernetes-service-dns-update.svg?branch=master)](https://travis-ci.org/danielfm/kubernetes-service-dns-update)
 [![Coverage Status](https://coveralls.io/repos/github/danielfm/kubernetes-service-dns-update/badge.svg?branch=master)](https://coveralls.io/github/danielfm/kubernetes-service-dns-update?branch=master)
-[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
 This daemon handles the task of synchronizing DNS records - for now, Route53
 only - to Kubernetes services.
