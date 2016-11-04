@@ -22,9 +22,8 @@ given namespace, or all namespaces) and adds the appropriate aliases to the
 domains (top-level domains are also supported) specified by the annotation
 `domainNames`.
 
-The daemon must be running inside a Kubernetes node on AWS and that the IAM
-profile for that node is set up to allow the following, along with the default
-permissions needed by Kubernetes:
+The daemon must be running inside a Kubernetes node on AWS and must set the
+following extra permissions to the IAM profile assigned to that node:
 
 ```json
 {
@@ -81,6 +80,6 @@ spec:
 ```
 
 An "A" record for `test.mydomain.com` will be created as an alias to the ELB that
-is configured by kubernetes. This assumes that a hosted zone exists in Route53 for
+is configured by Kubernetes. This assumes that a hosted zone exists in Route53 for
 `mydomain.com`. Any record that previously existed for that dns record will be
 updated.
