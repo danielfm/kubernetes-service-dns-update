@@ -22,7 +22,7 @@ spec:
       name: service-dns-update
     spec:
       containers:
-      - image: 307424997672.dkr.ecr.us-east-1.amazonaws.com/service-dns-update:v1.4.0
+      - image: danielfm/service-dns-update:v1.4.0
         imagePullPolicy: Always
         name: app
         # args:
