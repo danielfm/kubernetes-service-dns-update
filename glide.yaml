@@ -1,7 +1,6 @@
-package: route53-kubernetes
+package: github.com/danielfm/service-dns-update
 import:
-- package: k8s.io/kubernetes
-  version: v1.3.4
+- package: k8s.io/client-go
+  version: 3a5b96cfd3d3ff1d53d979b4297c4f3b869aab09
 - package: github.com/aws/aws-sdk-go
-  version: c924893c38ecc04b18d7aab8a7aa561cb8b4c4cc
-- package: github.com/golang/glog
+  version: 6c577e9e7b08a6d10bad1c9703227cd0403a8dd7

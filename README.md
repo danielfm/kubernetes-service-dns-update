@@ -1,44 +1,29 @@
-# Kubernetes => Route53 Mapping Service
+# Kubernetes Service DNS Update
 
-This is a Kubernetes service that polls services (in all namespaces) that are configured
-with the label `dns=route53` and adds the appropriate alias to the domain specified by
-the annotation `domainName=sub.mydomain.io`. Multiple domains and top level domains are also supported:
-`domainName=.mydomain.io,sub1.mydomain.io,sub2.mydomain.io`
+[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
-# Usage
+This daemon handles the task of synchronizing DNS records - for now, Route53
+only - to Kubernetes services.
 
-### route53-kubernetes ReplicationController
+This is a fork of [route53-kubernetes](https://github.com/wearemolecule/route53-kubernetes)
+project. These are the main changes I've made:
 
-The following is an example ReplicationController definition for route53-kubernetes:
+- Command line switch for switch dry-run on/off
+- Command line argument to specify the namespace to be watched
+- Command line to customize the sync interval
+- Removed dependency to glog
+- Better test coverage
 
-Create the ReplicationController via `kubectl create -f <name_of_route53-kubernetes-rc.yaml>`
+## How it Works
 
-Note: We don't currently sign our docker images. So, please use our images at your own risk.
+The daemon lists all services configured with the label `dns: route53` (from a
+given namespace, or all namespaces) and adds the appropriate aliases to the
+domains (top-level domains are also supported) specified by the annotation
+`domainNames`.
 
-```yaml
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: route53-kubernetes
-  namespace: kube-system
-  labels:
-    app: route53-kubernetes
-spec:
-  replicas: 1
-  selector:
-    app: route53-kubernetes
-  template:
-    metadata:
-      labels:
-        app: route53-kubernetes
-    spec:
-      containers:
-        - image: quay.io/molecule/route53-kubernetes:v1.3.0
-          name: route53-kubernetes
-```
-
-This service expects that it's running on a Kubernetes node on AWS and that the IAM profile for
-that node is set up to allow the following, along with the default permissions needed by Kubernetes:
+The daemon must be running inside a Kubernetes node on AWS and that the IAM
+profile for that node is set up to allow the following, along with the default
+permissions needed by Kubernetes:
 
 ```json
 {
@@ -77,7 +62,7 @@ metadata:
     role: web
     dns: route53
   annotations:
-    domainName: "test.mydomain.com"
+    domainNames: test.mydomain.com
 spec:
   selector:
     app: my-app
@@ -94,69 +79,7 @@ spec:
   type: LoadBalancer
 ```
 
-An "A" record for `test.mydomain.com` will be created as an alias to the ELB that is
-configured by kubernetes. This assumes that a hosted zone exists in Route53 for mydomain.com.
-Any record that previously existed for that dns record will be updated.
-
-
-### Alternative setup
-
-This setup shows some alternative ways to configure route53-kubernetes. First, you can specify kubernetes certs manually if you do not have service accounts enabled. Second, access to AWS can be configured through a [Shared Credentials File](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk).
-
-```yaml
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: route53-kubernetes
-  namespace: kube-system
-  labels:
-    app: route53-kubernetes
-spec:
-  replicas: 1
-  selector:
-    app: route53-kubernetes
-  template:
-    metadata:
-      labels:
-        app: route53-kubernetes
-    spec:
-      volumes:
-        - name: ssl-cert
-          secret:
-            secretName: kube-ssl
-        - name: aws-creds
-          secret:
-            secretName: aws-creds
-      containers:
-        - image: quay.io/molecule/route53-kubernetes:v1.3.0
-          name: route53-kubernetes
-          volumeMounts:
-            - name: ssl-cert
-              mountPath: /opt/certs
-              readOnly: true
-            - name: aws-creds
-              mountPath: /opt/creds
-              readOnly: true
-          env:
-            - name: "CA_FILE_PATH"
-              value: "/opt/certs/ca.pem"
-            - name: "CERT_FILE_PATH"
-              value: "/opt/certs/cert.pem"
-            - name: "KEY_FILE_PATH"
-              value: "/opt/certs/key.pem"
-            - name: "AWS_SHARED_CREDENTIALS_FILE"
-              value: "/opt/creds/credentials"
-```
-
-# Building locally
-
-### Install dependencies
-
-We use glide to manage dependencies. To fetch the dependencies to your local `vendor/` folder please run:
-```bash
-glide install -v
-```
-
-### Build the Image
-
-You may choose to use Docker images for route53-kubernetes on our [Quay](https://quay.io/repository/molecule/route53-kubernetes?tab=tags) namespace or to build the binary, docker image, and push the docker image from scratch. See the [Makefile](https://github.com/wearemolecule/route53-kubernetes/blob/master/Makefile) for more information on doing this process manually.
+An "A" record for `test.mydomain.com` will be created as an alias to the ELB that
+is configured by kubernetes. This assumes that a hosted zone exists in Route53 for
+`mydomain.com`. Any record that previously existed for that dns record will be
+updated.

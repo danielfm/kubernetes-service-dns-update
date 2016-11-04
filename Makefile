@@ -1,7 +1,9 @@
+.PHONY: clean
+
 GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
-TAG=v1.3.0
-BIN=route53-kubernetes
-IMAGE=quay.io/molecule/$(BIN)
+TAG=v1.4.0
+BIN=kubernetes-service-dns-update
+IMAGE=danielfm/$(BIN)
 
 all: image
 	docker push $(IMAGE):$(TAG)
@@ -12,7 +14,10 @@ build:
 image: build
 	docker build -t $(IMAGE):$(TAG) .
 
-.PHONY: clean
-
 clean:
 	rm $(BIN)
+
+cover:
+	rm -f cover.out coverage.html
+	go test -coverprofile cover.out
+	go tool cover -html=cover.out -o coverage.html
