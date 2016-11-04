@@ -14,6 +14,9 @@ sudo: false
 
 install:
   - go get -v github.com/Masterminds/glide
+  - go get -v github.com/mattn/goveralls
   - glide install
 
-script: make cover
+script:
+  - make cover
+  - goveralls -coverprofile=cover.out -service=travis-ci -repotoken $COVERALLS_TOKEN
