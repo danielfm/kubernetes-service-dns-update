@@ -15,12 +15,7 @@ project. These are the main changes I've made:
 - Removed dependency to glog
 - Better test coverage
 
-## How it Works
-
-The daemon lists all services configured with the label `dns: route53` (from a
-given namespace, or all namespaces) and adds the appropriate aliases to the
-domains (top-level domains are also supported) specified by the annotation
-`domainNames`.
+## Requirements
 
 The daemon must be running inside a Kubernetes node on AWS and must set the
 following extra permissions to the IAM profile assigned to that node:
@@ -48,9 +43,19 @@ following extra permissions to the IAM profile assigned to that node:
 }
 ```
 
-### Service Configuration
+## How to Deploy
 
-Given the following Kubernetes service definition:
+See [sample-deployment.yaml](./sample-deployment.yaml) to see an example of how
+to deploy the daemon to your Kubernetes cluster.
+
+## How it Works
+
+The daemon lists all services configured with the label `dns: route53` (from a
+given namespace, or all namespaces) and adds the appropriate aliases to the
+domains (top-level domains are also supported) specified by the annotation
+`domainNames`.
+
+For instance, given the following Kubernetes service definition...
 
 ```yaml
 apiVersion: v1
@@ -79,7 +84,7 @@ spec:
   type: LoadBalancer
 ```
 
-An "A" record for `test.mydomain.com` will be created as an alias to the ELB that
+...an "A" record for `test.mydomain.com` will be created as an alias to the ELB that
 is configured by Kubernetes. This assumes that a hosted zone exists in Route53 for
 `mydomain.com`. Any record that previously existed for that dns record will be
 updated.
