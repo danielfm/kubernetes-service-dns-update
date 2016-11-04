@@ -22,7 +22,7 @@ spec:
       name: service-dns-update
     spec:
       containers:
-      - image: danielfm/service-dns-update:v1.4.0
+      - image: danielfm/kubernetes-service-dns-update:v1.4.0
         imagePullPolicy: Always
         name: app
         # args:
